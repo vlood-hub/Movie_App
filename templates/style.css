@@ -50,3 +50,49 @@ body {
     width: 128px;
     height: 193px;
 }
+
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  /*transition: opacity 0.3s;*/
+  position: absolute;
+  bottom: 100%; /* above the image */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #6cededb3;
+  color: #000;
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.container {
+  position: relative;
+  display: inline-block;
+}
+
+.ratinginfo {
+  position: absolute;
+  bottom: -10px;
+  right: -12px;
+  font-size: 16px;
+  color: #d11821;
+}
+
+.flag {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+}

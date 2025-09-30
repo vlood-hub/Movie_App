@@ -2,117 +2,48 @@
              — dive in and discover its cool features! """
 
 import random
+import sys
 import matplotlib.pyplot as plt
+import countryflag
 from termcolor import colored
 from statistics import median
 from db_manager import movie_storage_sql as storage
 from api import data_fetcher
+from CRUD import crud_movie, crud_user
 
 READ_HTML_FILE = 'templates/index_template.html'
-WRITE_NEW_HTML_FILE = 'index.html'
 
 
-def cmd_list_movies(movies):
-    """ Retrieve and display all movies from the database. """
-    print(f"{len(movies)} movies in total\n")
-    print(f"{'Title (year)':<50} Rating\n")
-
-    for name, attributes in movies.items():
-        left = f"{name} ({attributes['year']})"
-        print(f"{left:<51}: {attributes['rating']}")
-
-
-def cmd_add_movie(movies):
-    """ The function adds a movie to the movies database and saves changes. """
-    while True:
-        new_name = input("Enter new movie name: ")
-        if new_name == "":
-            print("Empty input")
-        else:
-            break
-    if new_name in movies:
-        print(colored("Movie",'red'), colored(new_name,'green'),
-            colored("already exists", 'red'))
-    else:
-        try:
-            movie = data_fetcher.fetch_data(new_name)
-            storage.add_movie(movie['Title'], movie['Year'], movie['imdbRating'], movie['Poster'])
-            print(colored("Movie",'blue'), colored(movie['Title'],'green'),
-                colored("successfully added",'blue'))
-        except KeyError:
-            print(colored("Movie",'red'), colored(new_name,'green'),
-                colored("not found", 'red'))
-        except TypeError:
-            pass
-
-
-def cmd_del_movie(movies):
-    """ This function deletes a movie from the movies database and saves changes."""
-    while True:
-        movie_to_delete = input("Enter movie name to delete: ")
-        if movie_to_delete in movies:
-            storage.delete_movie(movie_to_delete)
-            print(colored("Movie",'blue'), colored(movie_to_delete,'green'),
-                   colored("successfully deleted",'blue'))
-            break
-        else:
-            print(colored("Movie",'red',attrs=['bold']), colored(movie_to_delete,'green'),
-                   colored("doesn't exist!",'red', attrs=['bold']))
-            ask_again = input("Do you want to delete another one? (y/n): ")
-            if ask_again.lower() != "y":
-                break
-
-
-def cmd_update_movie(movies, movie_to_update = ""):
-    """ update movie """
-    while True:
-        if movie_to_update == "":
-            movie_to_update = input("Enter movie name to update: ")
-        if movie_to_update in movies:
-            new_rating = float(input("Enter new movie rating (0-10): "))
-            storage.update_movie(movie_to_update, new_rating)
-            print(colored("Movie",'blue'), colored(movie_to_update,'green'),
-                  colored("successfully updated",'blue'))
-            break
-        else:
-            print(colored("Movie",'red',attrs=['bold']), colored(movie_to_update,'green'),
-                  colored("doesn't exist!",'red',attrs=['bold']))
-            ask_again = input("Do you want to update another one? (y/n): ")
-            movie_to_update = ""
-            if ask_again.lower() != "y":
-                break
-
-
-def stats(movies):
+def stats(user_movies):
     """ analytics """
-    ratings = [float(attributes['rating']) for attributes in movies.values()]
+    ratings = [float(attributes['rating']) for attributes in user_movies.values()]
 
     #   average rating
-    print(colored(f"Average rating: {sum(ratings)/len(movies):.2f}",'yellow'))
+    print(colored(f"Average rating: {sum(ratings)/len(user_movies):.2f}",'yellow'))
 
     #   median rating
     print(colored(f"Median rating: {median(ratings):.2f}",'yellow'))
 
     #   best movie(s)
-    best_rating = max(float(m["rating"]) for m in movies.values())
+    best_rating = max(float(m["rating"]) for m in user_movies.values())
 
-    best_movies = [title for title, attrs in movies.items()
+    best_movies = [title for title, attrs in user_movies.items()
                 if float(attrs["rating"]) == best_rating]
 
     print(colored(f"Best movie(s): {', '.join(best_movies)}, {best_rating}", 'yellow'))
 
     #  worst movie(s)
-    worst_rating = min(float(m["rating"]) for m in movies.values())
+    worst_rating = min(float(m["rating"]) for m in user_movies.values())
 
-    worst_movies = [title for title, attrs in movies.items()
+    worst_movies = [title for title, attrs in user_movies.items()
                 if float(attrs["rating"]) == worst_rating]
 
     print(colored(f"Worst movie(s): {', '.join(worst_movies)}, {worst_rating}", 'yellow'))
 
 
-def random_movie(movies):
+def random_movie(user_movies):
     """ random movie choice """
-    name, attributes = random.choice(list(movies.items()))
+    name, attributes = random.choice(list(user_movies.items()))
     print(f"Your movie for tonight {colored(name, 'blue')} "
         f"({colored(attributes['year'], 'blue')}), "
         f"it's rated {colored(attributes['rating'], 'blue')}")
@@ -138,13 +69,13 @@ def edit_distance(user_input, name):
     return dist[m][n]
 
 
-def search_movie(movies):
+def search_movie(user_movies):
     """ search movie """
     while True:
         user_input = input("Enter part of movie name: ")
         found = False
 
-        for name, attributes in movies.items():
+        for name, attributes in user_movies.items():
             if user_input.lower() in name.lower():
                 print(f"{name} ({attributes['year']}), {attributes['rating']}")
                 found = True
@@ -153,7 +84,7 @@ def search_movie(movies):
             break
 
         similar = []
-        for name in movies:
+        for name in user_movies:
             distance = edit_distance(user_input.lower(), name.lower())
             if distance <= 7:  # Threshold for similarity
                 similar.append(name)
@@ -169,7 +100,7 @@ def search_movie(movies):
                 break
 
 
-def sort_movie(movies):
+def sort_movie(user_movies):
     """ This function sorts movies by their rating or lists them in chronological order. """
     while True:
         try:
@@ -178,7 +109,7 @@ def sort_movie(movies):
 
             # """ sort movie list highest rating first """
             if user_choice == 1:
-                movies = sorted(movies.items(),
+                sorted_movies = sorted(user_movies.items(),
                                 key=lambda item: float(item[1]['rating']),
                                 reverse=True)
                 break
@@ -188,12 +119,12 @@ def sort_movie(movies):
                 while True:
                     latest_movie = input("Do you want to see the latest movies first or last? ")
                     if latest_movie == "first":
-                        movies = sorted(movies.items(),
+                        sorted_movies = sorted(user_movies.items(),
                                         key=lambda item: int(item[1]['year']),
                                         reverse=True)
                         break
                     elif latest_movie == "last":
-                        movies = sorted(movies.items(),
+                        sorted_movies = sorted(user_movies.items(),
                                         key=lambda item: int(item[1]['year']))
                         break
                     else:
@@ -205,9 +136,9 @@ def sort_movie(movies):
         except ValueError:
             print("Please enter 1 or 2. Any other input is invallid")
 
-    print(f"\n{len(movies)} movies in total\n")
+    print(f"\n{len(sorted_movies)} movies in total\n")
     print(f"{'Title (release year)':<50} Rating\n")
-    for name, attributes in movies:
+    for name, attributes in sorted_movies:
         left = f"{name} ({attributes['year']})"
         print(f"{left:<51}: {attributes['rating']}")
 
@@ -223,40 +154,53 @@ def read_write_file(file_path, attr, obj=''):
             file_out.write(obj)
 
 
-def serialize_movie(title, info):
+def serialize_movie(title, info, imdb, flag):
     """ Serializes movie data """
     output = ''
     output += '<li>'
     output += '<div class="movie">'
-    output += f'<img class="movie-poster" src={info["poster"]} title="">'
+    output += '<div class="container">'
+    output += f'<a href="https://www.imdb.com/title/{imdb}">'
+    output += f'<img class="movie-poster" src={info["poster"]} title="{info["note"]}">'
+    output += '</a>'
+    output += '<div class="flag">'
+    output += f'<span><strong>{flag}</strong></span>'
+    output += '</div>'
+    output += '<div class="ratinginfo">'
+    output += f'<span><strong>{info["rating"]}</strong></span>'
+    output += '</div>'
+    output += '</div>'
     output += f'<div class="movie-title">{title}</div>'
     output += f'<div class="movie-year">{info["year"]}</div>'
-
-    # try:
-    #     output += f'<li><strong>Type:</strong> {animal_data["characteristics"]["type"]}</li>'
-    #     output += f'<li><strong>Group:</strong> {animal_data["characteristics"]["group"]}</li>'
-    # except KeyError:
-    #     pass
-
     output += '</div>'
     output += '</li>'
 
     return output
 
 
-def generate_website(movies):
-    """ """
+def generate_website(user_movies, user_data):
+    """ geberate website with a movie list """
+    WRITE_NEW_HTML_FILE = f'{user_data['name']}.html'
     orig_html_file = read_write_file(READ_HTML_FILE, 'read')
-
     output = ''
-    for title, info in movies.items():
-        output += serialize_movie(title, info)
+    #print(user_movies)
 
-    new_html_file = orig_html_file.replace('__TEMPLATE_TITLE__', 'My Movie App').replace('__TEMPLATE_MOVIE_GRID__', output)
+    for title, info in user_movies.items():
+        movie = data_fetcher.fetch_data(title)
+        country = str(movie["Country"].split(',')[0])
+        flag = countryflag.getflag(country)
+        imdb = movie["imdbID"]
+        output += serialize_movie(title, info, imdb, flag)
+
+    template_title = f'{user_data['name']}\'s Movie App'
+    new_html_file = orig_html_file.replace('__TEMPLATE_TITLE__', template_title).replace(
+        '__TEMPLATE_MOVIE_GRID__', output)
     read_write_file(WRITE_NEW_HTML_FILE, 'write', new_html_file)
-    print(f"Website was successfully generated to the file {WRITE_NEW_HTML_FILE}")
+    print(colored("Website was successfully generated or updated to the file",'blue'),
+          colored(WRITE_NEW_HTML_FILE,'green'))
 
-def filter_movies(movies):
+
+def filter_movies(user_movies):
     """ This function filters a list of movies based on specific criteria such as
                 minimum rating, start year, and end year. """
     while True:
@@ -274,10 +218,9 @@ def filter_movies(movies):
                 "Rating must be a number (decimals allowed), years must be integers. Try again!\n",
                 'red'))
 
-
     filtered_movies = {
     name: attributes
-    for name, attributes in movies.items()
+    for name, attributes in user_movies.items()
     if (min_rating is None or float(attributes['rating']) >= min_rating)
     and (start_year is None or int(attributes['year']) >= start_year)
     and (end_year is None or int(attributes['year']) <= end_year)
@@ -290,9 +233,9 @@ def filter_movies(movies):
         print(f"{left:<51}: {attributes['rating']}")
 
 
-def rating_histogram(movies):
+def rating_histogram(user_movies):
     """ rating histogram """
-    ratings = [movie["rating"] for movie in movies.values()]
+    ratings = [movie["rating"] for movie in user_movies.values()]
     #   Plotting a rating histogram
     plt.hist(ratings, bins=10, color='skyblue', edgecolor='black')
 
@@ -321,9 +264,9 @@ def save_file():
     print(colored("Figure was successfully saved",'blue'))
 
 
-def menu():
+def movies_cmd(user_data):
     """ menu """
-    print(colored("\n********** My Movies Database **********\n",
+    print(colored(f"\n********** {user_data['name']}'s Movies Database **********\n",
                   'cyan', attrs=['bold', 'underline']))
 
     while True:
@@ -341,26 +284,30 @@ def menu():
         9.  Generate webste
         10. Filter movies
         11. Create Rating Histogram\n
+        99. Switch user\n
                       """, 'magenta'))
 
         movies = storage.list_movies()
+        user_movies = {title: info for title, info in movies.items()
+                       if info.get('user_id') == user_data['id']}
         try:
             user_choice = int(input("Enter choice 1-10: "))
             print()
 
             match user_choice:
-                case 0: print("Bye!"); break
-                case 1: cmd_list_movies(movies)
-                case 2: cmd_add_movie(movies)
-                case 3: cmd_del_movie(movies)
-                case 4: cmd_update_movie(movies)
-                case 5: stats(movies)
-                case 6: random_movie(movies)
-                case 7: search_movie(movies)
-                case 8: sort_movie(movies)
-                case 9: generate_website(movies)
-                case 10: filter_movies(movies)
-                case 11: rating_histogram(movies)
+                case 0: print(f"Bye {user_data['name']}!"); sys.exit()
+                case 1: crud_movie.cmd_list_movies(user_movies,user_data)
+                case 2: crud_movie.cmd_add_movie(user_movies,user_data)
+                case 3: crud_movie.cmd_del_movie(user_movies,user_data)
+                case 4: crud_movie.cmd_update_movie(user_movies,user_data)
+                case 5: stats(user_movies)
+                case 6: random_movie(user_movies)
+                case 7: search_movie(user_movies)
+                case 8: sort_movie(user_movies)
+                case 9: generate_website(user_movies,user_data)
+                case 10: filter_movies(user_movies)
+                case 11: rating_histogram(user_movies)
+                case 99: crud_user.cmd_users_list()
 
         except ValueError:
             print("Enter a number (see menu)")
@@ -369,8 +316,9 @@ def menu():
 
 
 def main():
-    """ This function calls menu with possible commands. """
-    menu()
+    """ In the beginning was the main() """
+    print("\nWelcome to the Movie App! 🎬\n")
+    crud_user.cmd_users_list()
 
 
 if __name__ == "__main__":

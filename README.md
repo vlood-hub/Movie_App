@@ -2,9 +2,9 @@
 
 ## Description
 
-**My Movies Database** is a command-line Python application for managing a personal movie collection.
+**My Movies Database** is a command-line Python application for managing a personal movie collection with multi-user support.
 
-It allows you to add, update, delete, search, and analyze movies stored locally. The program also includes fun features such as generating a random movie suggestion, sorting movies, creating statistics, and exporting the database as a webpage.
+It allows you to add, update, delete, search, and analyze movies stored locally for different users. The program includes features such as generating random movie suggestions, sorting and filtering movies, creating statistics, exporting the database as a personalized webpage, and visualizing ratings. Now, you can manage multiple users, each with their own distinct movie collection.
 
 This project is designed for movie enthusiasts who want to maintain their own lightweight movie collection without relying on external apps or services.
 
@@ -12,17 +12,22 @@ This project is designed for movie enthusiasts who want to maintain their own li
 
 ## Features
 
-* 🎬 **List movies** – display all movies in the database
-* ➕ **Add movie** – add a new movie with details such as title and rating
-* ❌ **Delete movie** – remove a movie from the collection
-* ✏️ **Update movie** – change a movie’s information
-* 📊 **Stats** – view database statistics (e.g., count, averages)
-* 🎲 **Random movie** – get a random movie suggestion
-* 🔍 **Search movie** – find movies by title
+* 👤 **Multi-user support** – manage separate collections for different users
+* 🎬 **List movies** – display all movies in the selected user's database
+* ➕ **Add movie** – add a new movie with details such as title and rating for a user
+* ❌ **Delete movie** – remove a movie from a user's collection
+* ✏️ **Update movie** – change a movie’s information for a user
+* 📊 **Stats** – view statistics (e.g., count, averages, median) for a user's collection
+* 🎲 **Random movie** – get a random movie suggestion from a user's collection
+* 🔍 **Search movie** – find movies by title with fuzzy matching
 * 📑 **Sort movies** – sort by rating or by year
-* 🌐 **Generate website** – export the database as a simple HTML webpage
-* 🎛 **Filter movies** – show movies based on conditions (e.g., by rating)
-* 📈 **Rating histogram** – visualize movie ratings
+* 🌐 **Generate website** – export a user's database as a personalized HTML webpage
+* 🎛 **Filter movies** – show movies based on conditions (e.g., by rating, year)
+* 📈 **Rating histogram** – visualize movie ratings for a user
+* 🗃️ **User management** – add, delete, and update user profiles
+* 🔄 **Switch user** – easily switch between different users
+* 🏳️ **Country flags** – display country flags for movies (if available)
+* 📝 **Movie notes** – add personal notes to each movie
 
 ---
 
@@ -32,7 +37,7 @@ This project is designed for movie enthusiasts who want to maintain their own li
 
 ```bash
 git clone https://github.com/vlood-hub/Movie_App.git
-cd movie_app
+cd Movie_App
 ```
 
 ### 2. Install dependencies
@@ -50,15 +55,40 @@ pip install -r requirements.txt
 ### Run the program
 
 ```bash
-python main.py
+python movie_3.py
 ```
+
+## User Menu
+
+When you start the program, you’ll first see the user menu:
+
+```
+Select a user or modify the list:
+
+1. Alice
+2. Bob
+3. Charlie
+
++. Create new user
+-. Delete user
+o. Update user name
+
+Enter choice:
+```
+
+- Enter the number to select a user and manage their movie collection.
+- Enter `+` to create a new user.
+- Enter `-` to delete a user.
+- Enter `o` to update a user's name.
+
+After selecting a user, you’ll see the main movie management menu for that user.
 
 ### Navigate the menu
 
 You’ll see the interactive menu:
 
 ```
-********** My Movies Database **********
+********** [User's Name] Movies Database **********
 
 Menu:
 0. Exit
@@ -73,18 +103,21 @@ Menu:
 9. Generate website
 10. Filter movies
 11. Create Rating Histogram
+99. Switch user
 ```
 
-Enter the number of the action you want to perform.
+Enter the number or symbol for the action you want to perform.
 
 ---
 
 ## Example Workflow
 
-1. Add a few movies with ratings.
-2. List them to confirm they are saved.
-3. Generate a website to export your database into HTML.
-4. Create a rating histogram to visualize your ratings distribution.
+1. Select or create a user profile.
+2. Add a few movies with ratings and notes.
+3. List them to confirm they are saved.
+4. Generate a personalized website for the selected user.
+5. Create a rating histogram to visualize your ratings distribution.
+6. Switch users to manage different collections.
 
 ---
 

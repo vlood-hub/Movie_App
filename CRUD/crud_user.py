@@ -7,9 +7,9 @@ def cmd_users_list():
     users = user_storage.list_users()
     for idx, user in enumerate(users):
         print(f"{idx+1}. {user['name']}")
-    print(f"\n+. Create new user")
-    print(f"-. Delete user")
-    print(f"o. Update user name\n")
+    print(f"\n+. Create a new user")
+    print(f"-. Delete auser")
+    print(f"o. Update a user's name\n")
     user_choice = input("Enter choice: ")
 
     if user_choice.isdigit():

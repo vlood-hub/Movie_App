@@ -1,7 +1,8 @@
 requests
-os-sys
+os
 dotenv
 termcolor
 matplotlib
 statistics
 sqlalchemy
+countryflag

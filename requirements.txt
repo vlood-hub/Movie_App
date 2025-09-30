@@ -1,0 +1,7 @@
+requests
+os-sys
+dotenv
+termcolor
+matplotlib
+statistics
+sqlalchemy

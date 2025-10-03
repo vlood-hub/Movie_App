@@ -26,12 +26,13 @@ def cmd_add_movie(user_movies, user_data):
         else:
             break
 
-    if new_name in user_movies:
-        print(colored("Movie",'red'), colored(new_name,'green'),
+    new_name_cap = new_name.title()
+    if new_name_cap in user_movies:
+        print(colored("Movie",'red'), colored(new_name_cap,'green'),
             colored("already exists",'red'))
     else:
         try:
-            movie = data_fetcher.fetch_data(new_name)
+            movie = data_fetcher.fetch_data(new_name_cap)
             storage.add_movie(
                 movie['Title'],
                 movie['Year'],
@@ -43,8 +44,8 @@ def cmd_add_movie(user_movies, user_data):
             print(colored("Movie",'blue'), colored(movie['Title'],'green'),
                 colored("successfully added",'blue'))
             movies = storage.list_movies()
-            user_movies = {title: info for title, info in movies.items()
-                       if info.get('user_id') == user_data['id']}
+            user_movies = {title: info for (user_id, title), info in movies.items()
+                       if user_id == user_data['id']}
             movie_3.generate_website(user_movies, user_data)
         except KeyError:
             print(colored("Movie",'red'), colored(new_name,'green'),
@@ -57,13 +58,14 @@ def cmd_del_movie(user_movies, user_data):
     """ This function deletes a movie from the movies database and saves changes."""
     while True:
         movie_to_delete = input("Enter movie name to delete: ")
-        if movie_to_delete in user_movies:
-            storage.delete_movie(movie_to_delete, user_id=user_data['id'])
-            print(colored("Movie",'blue'), colored(movie_to_delete,'green'),
+        movie_to_delete_cap = movie_to_delete.title()
+        if movie_to_delete_cap in user_movies:
+            storage.delete_movie(movie_to_delete_cap, user_id=user_data['id'])
+            print(colored("Movie",'blue'), colored(movie_to_delete_cap,'green'),
                    colored("successfully deleted",'blue'))
             movies = storage.list_movies()
-            user_movies = {title: info for title, info in movies.items()
-                       if info.get('user_id') == user_data['id']}
+            user_movies = {title: info for (user_id, title), info in movies.items()
+                       if user_id == user_data['id']}
             movie_3.generate_website(user_movies, user_data)
             break
         else:
@@ -78,15 +80,16 @@ def cmd_update_movie(user_movies, user_data):
     """ update movie """
     while True:
         movie_to_update = input("Enter movie name to update: ")
-        if movie_to_update in user_movies:
+        movie_to_update_cap = movie_to_update.title()
+        if  movie_to_update_cap in user_movies:
             movie_note = input("Enter movie note: ")
-            storage.update_movie(movie_to_update, movie_note, user_id=user_data['id'])
-            print(colored("Movie",'blue'), colored(movie_to_update,'green'),
+            storage.update_movie(movie_to_update_cap, movie_note, user_id=user_data['id'])
+            print(colored("Movie",'blue'), colored(movie_to_update_cap,'green'),
                   colored("successfully updated",'blue'))
 
             movies = storage.list_movies()
-            user_movies = {title: info for title, info in movies.items()
-                       if info.get('user_id') == user_data['id']}
+            user_movies = {title: info for (user_id, title), info in movies.items()
+                       if user_id == user_data['id']}
             movie_3.generate_website(user_movies, user_data)
             break
         else:

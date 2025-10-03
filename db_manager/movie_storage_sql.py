@@ -31,7 +31,7 @@ def list_movies():
         movies = result.fetchall()
 
     return {
-        row[1]: {
+        (row[0], row[1]): {
             "user_id": row[0],
             "year": row[2],
             "rating": row[3],

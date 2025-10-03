@@ -288,8 +288,8 @@ def movies_cmd(user_data):
                       """, 'magenta'))
 
         movies = storage.list_movies()
-        user_movies = {title: info for title, info in movies.items()
-                       if info.get('user_id') == user_data['id']}
+        user_movies = {title: info for (user_id, title), info in movies.items()
+            if user_id == user_data['id']}
         try:
             user_choice = int(input("Enter choice 1-10: "))
             print()

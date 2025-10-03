@@ -8,7 +8,7 @@ def cmd_users_list():
     for idx, user in enumerate(users):
         print(f"{idx+1}. {user['name']}")
     print(f"\n+. Create a new user")
-    print(f"-. Delete auser")
+    print(f"-. Delete a user")
     print(f"o. Update a user's name\n")
     user_choice = input("Enter choice: ")
 
